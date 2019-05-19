@@ -14,30 +14,19 @@ import time
 import cv2
 import numpy as np
 
-def detect(cascade, encodings, image):
+def detect_web(cascade, encodings, image):
+	nparr = np.fromstring(image, np.uint8)
+	frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+	return detect(cascade, encodings, frame, show=False)
+
+def detect(cascade, encodings, frame, show=True):
 
 	# load the known faces and embeddings along with OpenCV's Haar
 	# cascade for face detection
 	print("[INFO] loading encodings + face detector...")
 	data = pickle.loads(encodings, encoding='latin1')
 	detector = cv2.CascadeClassifier(cascade)
-
-	# initialize the video stream and allow the camera sensor to warm up
-	#print("[INFO] starting video stream...")
-	#vs = VideoStream(src=0).start()
-	# vs = VideoStream(usePiCamera=True).start()
-	#time.sleep(2.0)
-
-	# start the FPS counter
-	#fps = FPS().start()
-
-	# loop over frames from the video file stream
-	#while True:
-	# grab the frame from the threaded video stream and resize it
-	# to 500px (to speedup processing)
 	
-	nparr = np.fromstring(image, np.uint8)
-	frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 	#frame = cv2.imread(image)
 	frame = imutils.resize(frame, width=500)
 
@@ -86,47 +75,25 @@ def detect(cascade, encodings, image):
 			# of votes (note: in the event of an unlikely tie Python
 			# will select first entry in the dictionary)
 			name = max(counts, key=counts.get)
-		
 		# update the list of names
 		names.append(name)
 
+	if show:
+		# loop over the recognized faces
+		for ((top, right, bottom, left), name) in zip(boxes, names):
+			# draw the predicted face name on the image
+			cv2.rectangle(frame, (left, top), (right, bottom),
+				(0, 255, 0), 2)
+			y = top - 15 if top - 15 > 15 else top + 15
+			cv2.putText(frame, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+				0.75, (0, 255, 0), 2)
 
-	"""
-	# loop over the recognized faces
-	for ((top, right, bottom, left), name) in zip(boxes, names):
-		# draw the predicted face name on the image
-		cv2.rectangle(frame, (left, top), (right, bottom),
-			(0, 255, 0), 2)
-		y = top - 15 if top - 15 > 15 else top + 15
-		cv2.putText(frame, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
-			0.75, (0, 255, 0), 2)
+		# display the image to our screen
+		cv2.imshow("Frame", frame)
+		k = cv2.waitKey(0) & 0xFF
+		cv2.destroyAllWindows()
 
-	# display the image to our screen
-	cv2.imshow("Frame", frame)
-
-	k = cv2.waitKey(0) & 0xFF
-	cv2.destroyAllWindows()
-
-	"""
-
-	print(names)
 	return names
-
-	# if the `q` key was pressed, break from the loop
-	#if key == ord("q"):
-	#	break
-
-	# update the FPS counter
-	#fps.update()
-
-	# stop the timer and display FPS information
-	#fps.stop()
-	#print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-	#print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
-
-	# do a bit of cleanup
-	#cv2.destroyAllWindows()
-	#vs.stop()
 
 # construct the argument parser and parse the arguments
 if __name__ == '__main__':
@@ -138,4 +105,7 @@ if __name__ == '__main__':
 	ap.add_argument("-i", "--image", required=True,
 		help="path to image")
 	args = vars(ap.parse_args())
-	detect(args["cascade"], args["encodings"], args["image"])
+	encodings = open(args["encodings"], "rb").read()
+	frame = cv2.imread(args["image"])
+	detected_names = detect(args["cascade"], encodings, frame, show=True)
+	print(detected_names)

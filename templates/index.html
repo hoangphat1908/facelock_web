@@ -1,20 +1,46 @@
 <!DOCTYPE html>
 
 <html lang='en'>
-<head>
-  <meta charset="utf-8" />
-  <title>Hello world!</title>
-  <link type="text/css" rel="stylesheet"
-        href="{{ url_for('static',
-              filename='hello.css')}}" />
-</head>
-<body>
+	<head>
+	  <meta charset="utf-8" />
+	  <title>Hello world!</title>
+	  <link type="text/css" rel="stylesheet"
+	        href="https://www.w3schools.com/w3css/4/w3.css" />
+	</head>
+	<body>
+		<div class="w3-content w3-padding" style="max-width:1000px">
+			<header class="w3-container w3-center w3-padding-16" style="max-width:1000px"> 
+				<h1><b>FACELOCK</b></h1>
+				<p>Phat Nguyen - Charles Leon</p>
+			</header>
 
-	<p>
-		<em>Hint</em>: This is a RESTful web service! Append a username
-	    to the URL (for example: <code>/Thelonious</code>) to say hello to
-	    someone specific.
-	</p>
+			<div class="w3-container w3-padding-32" id="owners">
+				<h3 class="w3-border-bottom w3-border-light-grey w3-padding-16">Your lock's owners</h3>
+			</div>
 
-</body>
+
+			<div class="w3-row-padding">
+				{% for image in images %}
+				    <div class="w3-col l3 m6 w3-margin-bottom">
+				      <img src={{image[1]}} style="width:100%">
+				      <h3>{{image[0]}}</h3>
+				    </div>
+				{% endfor %}
+			</div>
+
+			<div class="w3-container w3-padding-32" id="add_owner">
+				<h3 class="w3-border-bottom w3-border-light-grey w3-padding-16">Add a lock owner</h3>
+				<form action = "http://localhost:5000/" method = "POST" enctype = "multipart/form-data">
+					<input class="w3-input w3-border" type="text" placeholder="Name" required name="name">
+					<br>
+					<p>Upload your user's images</p>
+					<input type = "file" name = "file" multiple/>
+					<br><br>
+					<button class="w3-button w3-black w3-section" type="submit">
+						<i class="fa fa-paper-plane"></i> ADD OWNER
+					</button>
+				</form>
+			</div>
+	    </div>
+	</body>
 </html>

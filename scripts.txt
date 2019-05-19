@@ -1,2 +1,2 @@
 python encode_faces.py --dataset dataset --encodings encodings.pickle --detection-method hog
-python facelock.py --cascade haarcascade_frontalface_default.xml --encodings encodings.pickle --image adrian.jpg
+python detect_face.py --cascade haarcascade_frontalface_default.xml --encodings encodings.pickle --image test_images/adrian.jpg
